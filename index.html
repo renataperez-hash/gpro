@@ -1993,4 +1993,302 @@ async function exportPPTRun(){
 }
 
 </script>
+<style>
+/* ---------- mapas de proceso ---------- */
+.mp-wrap{overflow:hidden;padding:4px 0 6px}
+.mp-wrap svg{display:block}
+.mp-box{cursor:pointer}
+.mp-box:hover .bx{filter:brightness(.95)}
+.mp-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--gry);margin-top:8px}
+.mp-leg span{display:inline-flex;align-items:center;gap:5px}
+.mp-leg i{width:16px;height:11px;border-radius:3px;display:inline-block;border:1.5px solid}
+.mp-sum{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;font-size:13px}
+.mp-sum .bar{flex:0 0 140px}
+.mp-now{background:var(--orgL);border-left:4px solid var(--org);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.mp-now b{color:var(--org)}
+</style>
+<script>
+/* ===================== MAPAS DE PROCESO (pestaña Programa + lámina PPT) ===================== */
+const MP_COL={teal:"#0098AA",org:"#E55302",gold:"#D99700",blue:"#284B81",char:"#36424A",grn:"#3E9A5B",red:"#C13832",gry:"#6B767E",purple:"#6D4C9F"};
+const MP_COLN=Object.keys(MP_COL);
+const MAPAS_SEED=[
+ {id:1, titulo:"Licitación y arranque de trabajos MIES", subtitulo:"ODS 79 · obras menores Planta LR · hitos con fecha comprometida", fuente:"Programa MIES. H12 traía inicio 11-11 y término 09-11 (invertido); se considera 09-11 → 11-11. Actividades con una sola fecha se consideran terminando ese día.", fechaInicio:"",
+  actores:[{k:"DAND",nombre:"Codelco",color:"teal"},{k:"MIES",nombre:"Contratista",color:"org"},{k:"JEJ",nombre:"Revisión",color:"gold"}],
+  etapas:["Licitación","Arranque y movilización","Ejecución en terreno"],
+  hitos:[
+   {id:1,cod:"H1",nombre:"Envío de antecedentes",actor:"DAND",etapa:"Licitación",inicio:"2026-10-13",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:2,cod:"H2",nombre:"Visita a terreno y/o explicativa",actor:"DAND",etapa:"Licitación",inicio:"2026-10-15",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:3,cod:"H3",nombre:"Recepción de consultas",actor:"MIES",etapa:"Licitación",inicio:"2026-10-16",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:4,cod:"H4",nombre:"Respuestas a consultas y aclaraciones",actor:"DAND",etapa:"Licitación",inicio:"2026-10-20",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:5,cod:"H5",nombre:"Recepción de oferta técnica y económica",actor:"MIES",etapa:"Licitación",inicio:"2026-10-26",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:6,cod:"H6",nombre:"Evaluación oferta técnica / económica",actor:"DAND",etapa:"Licitación",inicio:"2026-10-27",termino:"2026-10-31",dias:5,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:7,cod:"H7",nombre:"Adjudicación",actor:"DAND",etapa:"Licitación",inicio:"2026-11-02",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:8,cod:"H8",nombre:"Entrega de área",actor:"DAND",etapa:"Arranque y movilización",inicio:"2026-11-03",termino:"",dias:0,dur:0,desde:"",estado:"Auto",nota:""},
+   {id:9,cod:"H9",nombre:"Entrega de carpeta de arranque",actor:"MIES",etapa:"Arranque y movilización",inicio:"2026-11-03",termino:"2026-11-09",dias:7,dur:0,desde:"H8",estado:"Auto",nota:"En paralelo con procedimientos y programa"},
+   {id:10,cod:"H10",nombre:"Entrega de procedimientos específicos",actor:"MIES",etapa:"Arranque y movilización",inicio:"2026-11-03",termino:"2026-11-05",dias:3,dur:0,desde:"H8",estado:"Auto",nota:""},
+   {id:11,cod:"H11",nombre:"Revisión y levantamiento de observaciones",actor:"JEJ",etapa:"Arranque y movilización",inicio:"2026-11-05",termino:"2026-11-09",dias:5,dur:0,desde:"H10",estado:"Auto",nota:"obs. → corrección"},
+   {id:12,cod:"H12",nombre:"Entrega de procedimiento Rev.0",actor:"MIES",etapa:"Arranque y movilización",inicio:"2026-11-09",termino:"2026-11-11",dias:3,dur:0,desde:"H11",estado:"Auto",nota:""},
+   {id:13,cod:"H13",nombre:"Entrega de programa Rev.0",actor:"MIES",etapa:"Arranque y movilización",inicio:"2026-11-03",termino:"2026-11-07",dias:5,dur:0,desde:"H8",estado:"Auto",nota:""},
+   {id:14,cod:"H14",nombre:"Inicio de actividades en terreno",actor:"MIES",etapa:"Ejecución en terreno",inicio:"2026-11-12",termino:"",dias:0,dur:0,desde:"H9,H12,H13",estado:"Auto",nota:"Entregables aprobados antes del inicio"},
+   {id:15,cod:"H15",nombre:"Término de trabajos en terreno",actor:"MIES",etapa:"Ejecución en terreno",inicio:"2026-11-12",termino:"2027-01-26",dias:75,dur:0,desde:"H14",estado:"Auto",nota:""}
+  ]},
+ {id:2, titulo:"Licitación Techumbres y Fachadas PMFC", subtitulo:"Contrato mayor · 23 hitos · 3 etapas · ~158 días corridos · «+15 d» = días corridos después del hito anterior", fuente:"Ficha Rev. A, calendario Check List TEC-ECO-CRO (plazos ajustados) y Lista de comprobación. La autorización interna GPRO va siempre; el Comité Divisional de Contratos solo si el monto supera KUS$ 5.000. (*) El nivel MAF y su plazo dependen del monto.", fechaInicio:"",
+  actores:[{k:"DAND",nombre:"Codelco · GPRO",color:"teal"},{k:"Comité · MAF",nombre:"Contratos",color:"blue"},{k:"DAB",nombre:"Abastecimiento",color:"gold"},{k:"Proponentes",nombre:"Empresas",color:"char"}],
+  etapas:["Previa · Autorización de inicio","Requerimiento, invitación y consultas","Evaluación y adjudicación"],
+  hitos:[
+   {id:1,cod:"H1",nombre:"Preliminares y paquete documental",actor:"DAND",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:3,dur:0,desde:"",estado:"Hecho",nota:""},
+   {id:2,cod:"H2",nombre:"PPT inicio de licitación",actor:"DAND",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:0,dur:1,desde:"",estado:"Hecho",nota:""},
+   {id:3,cod:"H3",nombre:"Autorización interna GPRO",actor:"DAND",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:0,dur:0,desde:"H2",estado:"Hecho",nota:"Siempre"},
+   {id:4,cod:"H3b",nombre:"Comité Divisional de Contratos",actor:"Comité · MAF",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:0,dur:6,desde:"H2",estado:"Pendiente",nota:"Solo si el monto supera KUS$ 5.000"},
+   {id:5,cod:"H4",nombre:"Bases Técnicas · V°B°",actor:"DAND",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:0,dur:10,desde:"H3,H3b",estado:"En curso",nota:""},
+   {id:6,cod:"H5",nombre:"Generación SR",actor:"DAND",etapa:"Previa · Autorización de inicio",inicio:"",termino:"",dias:0,dur:11,desde:"",estado:"Auto",nota:""},
+   {id:7,cod:"H6",nombre:"Aprobación MAF SR",actor:"Comité · MAF",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:7,desde:"",estado:"Auto",nota:"Nivel MAF según monto (*)"},
+   {id:8,cod:"H7",nombre:"Fases 1, 2 y 3 PUC",actor:"DAB",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:15,desde:"",estado:"Auto",nota:""},
+   {id:9,cod:"H8",nombre:"Aprobación MAF abastecimiento",actor:"Comité · MAF",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:7,desde:"",estado:"Auto",nota:"Nivel MAF según monto (*)"},
+   {id:10,cod:"H9",nombre:"Invitación a proponentes",actor:"DAB",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:1,desde:"",estado:"Auto",nota:""},
+   {id:11,cod:"H10",nombre:"Reunión explicativa",actor:"Proponentes",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:1,desde:"",estado:"Auto",nota:""},
+   {id:12,cod:"H11",nombre:"Visita a terreno",actor:"Proponentes",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:2,desde:"",estado:"Auto",nota:""},
+   {id:13,cod:"H12",nombre:"Ronda de consultas N°1",actor:"Proponentes",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:5,desde:"",estado:"Auto",nota:""},
+   {id:14,cod:"H13",nombre:"Respuestas y aclaraciones N°1",actor:"DAND",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:5,desde:"",estado:"Auto",nota:""},
+   {id:15,cod:"H14",nombre:"Ronda de consultas N°2",actor:"Proponentes",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:5,desde:"",estado:"Auto",nota:""},
+   {id:16,cod:"H15",nombre:"Respuestas y aclaraciones N°2",actor:"DAND",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:5,desde:"",estado:"Auto",nota:""},
+   {id:17,cod:"H16",nombre:"Recepción OT y OE",actor:"Proponentes",etapa:"Requerimiento, invitación y consultas",inicio:"",termino:"",dias:0,dur:30,desde:"",estado:"Auto",nota:""},
+   {id:18,cod:"H17",nombre:"Apertura ofertas técnicas",actor:"DAB",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:2,desde:"",estado:"Auto",nota:""},
+   {id:19,cod:"H18",nombre:"Evaluación OT · informe",actor:"DAND",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:11,desde:"",estado:"Auto",nota:""},
+   {id:20,cod:"H19",nombre:"Apertura ofertas económicas",actor:"DAB",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:1,desde:"",estado:"Auto",nota:""},
+   {id:21,cod:"H20",nombre:"Evaluación OE · informe DAB",actor:"DAB",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:10,desde:"",estado:"Auto",nota:""},
+   {id:22,cod:"H21",nombre:"Presentación Comité de Contratos · adjudicación",actor:"Comité · MAF",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:7,desde:"",estado:"Auto",nota:""},
+   {id:23,cod:"H22",nombre:"Aprobación MAF adjudicación",actor:"Comité · MAF",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:7,desde:"",estado:"Auto",nota:"Nivel MAF según monto (*)"},
+   {id:24,cod:"H23",nombre:"Carta de adjudicación",actor:"DAB",etapa:"Evaluación y adjudicación",inicio:"",termino:"",dias:0,dur:6,desde:"",estado:"Auto",nota:""}
+  ]}
+];
+function ensureMapas(){
+  let ch=false;
+  Object.values(DB.proyectos||{}).forEach(p=>{ if(!Array.isArray(p.mapas)){ p.mapas=[]; ch=true; } });
+  const p=DB.proyectos&&DB.proyectos.A27M491;
+  if(p && !(+p.mapasSeed>=1)){ MAPAS_SEED.forEach(m=>{ if(!p.mapas.some(x=>normTxt(x.titulo)===normTxt(m.titulo))) p.mapas.push(JSON.parse(JSON.stringify(m))); }); p.mapasSeed=1; ch=true; }
+  return ch;
+}
+const mpNext = arr => arr.reduce((m,x)=>Math.max(m,+x.id||0),0)+1;
+const mpActor = (m,k) => (m.actores||[]).find(a=>a.k===k) || {k, nombre:"", color:"gry"};
+const mpHex = c => MP_COL[c] || (/^#/.test(c||"")?c:MP_COL.gry);
+const mpAdd = (d,n) => new Date(d.getTime()+n*864e5);
+
+/* ---- cálculo: fechas (fijas o estimadas), estado y paso actual ---- */
+function mapaCalc(m){
+  const H=hoy(); const hs=m.hitos||[]; const idx=c=>hs.findIndex(x=>x.cod===c);
+  const out=hs.map(h=>({h, ini:null, fin:null, est:false, st:"", prev:[]}));
+  out.forEach((o,i)=>{
+    const h=o.h;
+    o.prev=(h.desde?String(h.desde).split(/[,\s]+/).filter(Boolean).map(idx).filter(k=>k>=0&&k<i):(i>0?[i-1]:[]));
+    let ini=pd(h.inicio), fin=pd(h.termino), est=false;
+    if(!ini){
+      const pf=o.prev.map(k=>out[k].fin||out[k].ini).filter(Boolean);
+      if(pf.length){ ini=mpAdd(new Date(Math.max(...pf)),+h.dur||0); est=true; }
+      else if(i===0&&pd(m.fechaInicio)){ ini=mpAdd(pd(m.fechaInicio),+h.dur||0); est=true; }
+    }
+    if(ini&&!fin) fin=mpAdd(ini,+h.dias||0);
+    if(fin&&ini&&fin<ini) fin=ini;
+    o.ini=ini; o.fin=fin; o.est=est;
+    let st=(h.estado&&h.estado!=="Auto")?h.estado:"";
+    if(!st){ if(!ini) st="Sin fecha"; else if(est) st="Pendiente"; else if(fin<H) st="Hecho"; else if(ini<=H) st="En curso"; else st="Pendiente"; }
+    o.st=st;
+  });
+  let cur=out.findIndex(o=>o.st==="En curso"); if(cur<0) cur=out.findIndex(o=>o.st!=="Hecho");
+  out.forEach((o,i)=>{ o.cur=(i===cur); });
+  const hechos=out.filter(o=>o.st==="Hecho").length;
+  const nxt=out.slice(cur+1).find(o=>o.st!=="Hecho")||null;
+  return {items:out, cur, hechos, nxt, total:out.length};
+}
+function mpFecha(o){ /* etiqueta corta de fecha de un paso */
+  const h=o.h;
+  if(h.inicio){ return fds(h.inicio)+(h.termino&&h.termino!==h.inicio?" → "+fds(h.termino):""); }
+  if(o.ini){ return "≈ "+fds(iso(o.ini))+(o.fin&&dias(o.ini,o.fin)>0?" → "+fds(iso(o.fin)):""); }
+  if(+h.dur>0) return "+"+h.dur+" d";
+  if(+h.dias>0) return h.dias+" d";
+  return "";
+}
+function mpRango(items){ /* rango de fechas y días de un conjunto de pasos */
+  const ini=items.map(o=>o.ini).filter(Boolean), fin=items.map(o=>o.fin||o.ini).filter(Boolean);
+  if(!ini.length) { const d=items.reduce((s,o)=>s+(+o.h.dur||0)+(+o.h.dias||0),0); return d?`≈ ${d} días corridos`:"sin fechas"; }
+  const a=new Date(Math.min(...ini)), b=new Date(Math.max(...fin)); const est=items.some(o=>o.est);
+  return `${est?"≈ ":""}${fds(iso(a))} → ${fd(iso(b))} · ${dias(a,b)+1} día${dias(a,b)?"s":""}`;
+}
+
+/* ---- layout (compartido por SVG y PPT): etapas apiladas, carriles por actor, columnas por secuencia ---- */
+const MP_KW={lab:134, col:126, gap:14, boxH:66, rowGap:10, laneTop:26, laneBot:10, phH:28, phGap:12, pad:0, maxW:1100, maxH:Infinity, wrap:true, colMax:210};
+function mapaLayout(m, C, K){
+  const etapas=[...(m.etapas||[])]; C.items.forEach(o=>{ if(!etapas.includes(o.h.etapa||"")) etapas.push(o.h.etapa||""); });
+  const actOrder=(m.actores||[]).map(a=>a.k);
+  const phases=[]; let y=0, W=K.wrap?K.maxW:K.lab+K.gap*2+K.col;
+  const maxCols=Math.max(1,Math.floor((K.maxW-K.lab-K.gap)/(K.col+K.gap)));
+  etapas.forEach((et,pi)=>{
+    const its=C.items.map((o,i)=>({o,i})).filter(x=>(x.o.h.etapa||"")===et); if(!its.length) return;
+    const inPh=new Set(its.map(x=>x.i)); const col={}; const slots={}; const all=[];
+    its.forEach(x=>{ const prevs=x.o.prev.filter(k=>inPh.has(k)); const c=prevs.length?Math.max(...prevs.map(k=>col[k]))+1:0; col[x.i]=c; const key=x.o.h.actor+"|"+c; const row=slots[key]||0; slots[key]=row+1; all.push({i:x.i,o:x.o,col:c,row}); });
+    const ncols=Math.max(...all.map(b=>b.col))+1;
+    /* web: si no caben las columnas, la etapa se parte en bandas (continúa) en vez de desplazar; PPT: se angostan las cajas */
+    const nparts=K.wrap&&ncols>maxCols?Math.ceil(ncols/maxCols):1; const per=Math.ceil(ncols/nparts);
+    for(let part=0;part<nparts;part++){
+      const c0=part*per; const boxes=all.filter(b=>b.col>=c0&&b.col<c0+per).map(b=>Object.assign({},b,{col:b.col-c0})); if(!boxes.length) continue;
+      const nc=Math.max(...boxes.map(b=>b.col))+1; const inB=new Set(boxes.map(b=>b.i));
+      const colW=K.wrap?Math.min(K.colMax,(K.maxW-K.lab-K.gap)/Math.max(nc,Math.min(ncols,maxCols))-K.gap):Math.min(K.col,(K.maxW-K.lab-K.gap)/nc-K.gap);
+      const acts=[...new Set(boxes.map(b=>b.o.h.actor))].sort((a,b)=>{ const ia=actOrder.indexOf(a), ib=actOrder.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
+      const ph={nombre:et, idx:pi, part, nparts, y, items:its.map(x=>x.o), lanes:[], boxes, edges:[]};
+      let ly=y+K.phH;
+      acts.forEach(a=>{ const rows=Math.max(1,...boxes.filter(b=>b.o.h.actor===a).map(b=>b.row+1)); const h=K.laneTop+rows*K.boxH+(rows-1)*K.rowGap+K.laneBot; ph.lanes.push({actor:a, y:ly, h}); ly+=h; });
+      boxes.forEach(b=>{ const ln=ph.lanes.find(l=>l.actor===b.o.h.actor); b.x=K.lab+K.gap+b.col*(colW+K.gap); b.y=ln.y+K.laneTop+b.row*(K.boxH+K.rowGap); b.w=colW; b.h=K.boxH; });
+      boxes.forEach(b=>{ b.o.prev.filter(k=>inB.has(k)).forEach(k=>{ const a=boxes.find(z=>z.i===k); if(a) ph.edges.push({a,b}); }); });
+      ph.h=ly-y; ph.w=K.lab+K.gap+nc*(colW+K.gap); W=Math.max(W,ph.w); y=ly+K.phGap; phases.push(ph);
+    }
+  });
+  return {phases, W:W+K.pad, H:Math.max(0,y-K.phGap), K};
+}
+function mpWrap(s, n, max=3){ const w=String(s||"").split(/\s+/); const L=[]; let cur="";
+  w.forEach(x=>{ if((cur+" "+x).trim().length>n && cur){ L.push(cur); cur=x; } else cur=(cur+" "+x).trim(); }); if(cur) L.push(cur);
+  if(L.length>max){ L.length=max; L[max-1]=L[max-1].slice(0,n-1)+"…"; } return L; }
+function mpStyle(o,m){ /* colores de la caja según estado */
+  const ac=mpHex(mpActor(m,o.h.actor).color);
+  if(o.cur) return {fill:MP_COL.org, stroke:MP_COL.org, txt:"#FFFFFF", code:"#FFFFFF", dash:false, pre:"★ "};
+  if(o.st==="Hecho") return {fill:"#E8F5EC", stroke:MP_COL.grn, txt:"#1F2A30", code:MP_COL.grn, dash:false, pre:"✓ "};
+  if(o.st==="Sin fecha") return {fill:"#FFFFFF", stroke:MP_COL.gry, txt:"#1F2A30", code:MP_COL.gry, dash:true, pre:""};
+  return {fill:"#FFFFFF", stroke:ac, txt:"#1F2A30", code:ac, dash:false, pre:""};
+}
+function mpPhaseLabel(ph){ const cods=ph.items.map(o=>o.h.cod); const b=ph.boxes||[]; const bc=b.length?`${b[0].o.h.cod}–${b[b.length-1].o.h.cod}`:""; return `ETAPA ${ph.idx+1} · ${String(ph.nombre).toUpperCase()}${ph.nparts>1?` (${ph.part+1}/${ph.nparts}${ph.part?" · continúa":""})`:""}   ·   ${ph.nparts>1?bc:`${cods[0]}–${cods[cods.length-1]}`}   ·   ${mpRango(ph.items)}`; }
+
+/* ---- SVG para la web ---- */
+function mapaSVG(m, mi){
+  const C=mapaCalc(m), K={...MP_KW, maxW:mpWebW()}, L=mapaLayout(m,C,K); let s="";
+  L.phases.forEach(ph=>{
+    s+=`<rect x="0" y="${ph.y}" width="${L.W}" height="${K.phH}" rx="6" fill="${ph.idx%2?"#46545D":"#36424A"}"/><text x="10" y="${ph.y+K.phH/2+4}" font-size="11.5" font-weight="800" fill="#fff" letter-spacing=".4">${esc(mpPhaseLabel(ph))}${(c=>c?`<tspan fill="#FFD28F">   ·   ★ ESTAMOS AQUÍ · ${esc(c.h.cod)}</tspan>`:"")((ph.boxes.find(b=>b.o.cur)||{}).o)}</text>`;
+    ph.lanes.forEach((ln,k)=>{ const a=mpActor(m,ln.actor), c=mpHex(a.color);
+      s+=`<rect x="0" y="${ln.y}" width="${L.W}" height="${ln.h}" fill="${k%2?"#F8F9FA":"#fff"}"/><line x1="0" y1="${ln.y+ln.h}" x2="${L.W}" y2="${ln.y+ln.h}" stroke="#E3E7EA"/>`;
+      s+=`<rect x="0" y="${ln.y+6}" width="4" height="${ln.h-12}" rx="2" fill="${c}"/><text x="12" y="${ln.y+ln.h/2-2}" font-size="12.5" font-weight="800" fill="${c}">${esc(ln.actor)}</text><text x="12" y="${ln.y+ln.h/2+13}" font-size="11" fill="#6B767E">${esc(a.nombre||"")}</text>`; });
+    ph.edges.forEach(({a,b})=>{ const x1=a.x+a.w, y1=a.y+a.h/2, x2=b.x, y2=b.y+b.h/2; const xm=x1+K.gap/2;
+      const d=y1===y2?`M${x1},${y1} L${x2},${y2}`:`M${x1},${y1} L${xm},${y1} L${xm},${y2} L${x2},${y2}`;
+      s+=`<path d="${d}" fill="none" stroke="#9AA5AC" stroke-width="1.5" marker-end="url(#mpArr)"/>`; });
+    ph.boxes.forEach(b=>{ const o=b.o, st=mpStyle(o,m); const f=mpFecha(o); const lines=mpWrap(o.h.nombre, Math.max(10,Math.floor(b.w/6.6)), 3);
+      s+=`<g class="mp-box" onclick="editHito(${mi},${b.i})"><title>${esc(o.h.cod+" · "+o.h.nombre+(f?" · "+f:"")+(o.h.nota?"\n"+o.h.nota:"")+"\nEstado: "+o.st+(o.est?" (fecha estimada)":""))}</title>`;
+      s+=`<rect class="bx" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${st.fill}" stroke="${st.stroke}" stroke-width="${o.cur?2.5:1.5}" ${st.dash?'stroke-dasharray="5 4"':""}/>`;
+      if(o.cur) s+=`<text x="${b.x+b.w/2}" y="${b.y-7}" font-size="11" font-weight="800" fill="${MP_COL.org}" text-anchor="middle">★ ESTAMOS AQUÍ</text>`;
+      s+=`<text x="${b.x+8}" y="${b.y+16}" font-size="12" font-weight="800" fill="${st.code}">${esc(st.pre+o.h.cod)}${f?` <tspan font-weight="600" ${o.est?'font-style="italic"':""}>· ${esc(f)}</tspan>`:(o.st==="Hecho"?"":`<tspan fill="${o.cur?"#fff":MP_COL.teal}" font-weight="700" font-style="italic"> · + agregar fecha</tspan>`)}</text>`;
+      lines.forEach((l,k)=>{ s+=`<text x="${b.x+8}" y="${b.y+31+k*13}" font-size="11.5" fill="${st.txt}">${esc(l)}</text>`; });
+      if(+o.h.dias>0) s+=`<text x="${b.x+b.w-6}" y="${b.y+b.h-6}" font-size="10" font-weight="700" fill="${o.cur?"#fff":"#8C8C8C"}" text-anchor="end">${o.h.dias} d</text>`;
+      if(o.h.nota&&lines.length<3) s+=`<text x="${b.x+8}" y="${b.y+b.h-6}" font-size="9.5" font-style="italic" fill="${o.cur?"#fff":"#8C8C8C"}">${esc(String(o.h.nota).slice(0,Math.floor(b.w/5.2)))}</text>`;
+      s+=`</g>`; });
+  });
+  return `<div class="mp-wrap"><svg width="100%" height="${L.H}" viewBox="0 0 ${L.W} ${L.H}" preserveAspectRatio="xMinYMin meet" font-family="Calibri,'Segoe UI',Carlito,Arial,sans-serif"><defs><marker id="mpArr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9AA5AC"/></marker></defs>${s}</svg></div>`;
+}
+
+/* ---- tarjeta por mapa + sección en Programa ---- */
+function mapaCard(m, mi){
+  const C=mapaCalc(m); const cur=C.cur>=0?C.items[C.cur]:null;
+  const manual=(m.hitos||[]).some(h=>h.estado&&h.estado!=="Auto");
+  const sel=`<select class="f" style="padding:4px 8px;font-size:12.5px;max-width:320px" onchange="mpSetCur(${mi},this.value)" title="Cambiar el paso en que estamos"><option value="">Mover «estamos aquí» a…</option>${(m.hitos||[]).map((h,k)=>`<option value="${k}" ${k===C.cur?"selected":""}>${esc(h.cod)} · ${esc(h.nombre)}</option>`).join("")}<option value="fin">✓ Proceso completado</option></select>
+    ${C.nxt?`<button class="btn sec sm" onclick="mpSetCur(${mi},${C.items.indexOf(C.nxt)})" title="Marcar el paso actual como hecho y pasar al siguiente">Siguiente paso →</button>`:""}
+    ${manual?`<button class="btn ghost sm" onclick="mpSetCur(${mi},'auto')" title="Volver a calcular el paso actual solo con las fechas">↺ Automático por fechas</button>`:""}`;
+  const now = cur ? `<div class="mp-now"><div><b>★ Hoy estamos en</b> · ${esc(cur.h.cod)} · <b style="color:var(--txt)">${esc(cur.h.nombre)}</b> <span class="muted">(${esc(cur.h.actor)}${cur.h.etapa?" · "+esc(cur.h.etapa):""})</span> ${mpFecha(cur)?`<span class="chip ch-org" style="margin-left:6px">${esc(mpFecha(cur))}</span>`:`<a href="#" onclick="event.preventDefault();editHito(${mi},${C.cur})" style="margin-left:6px;font-weight:700">+ agregar fecha</a>`}${manual?`<span class="chip ch-gry" style="margin-left:6px" title="El paso actual fue fijado a mano">manual</span>`:""}</div>
+      ${C.nxt?`<div class="muted">Siguiente: <b style="color:var(--char)">${esc(C.nxt.h.cod)} · ${esc(C.nxt.h.nombre)}</b>${mpFecha(C.nxt)?" · "+esc(mpFecha(C.nxt)):""}</div>`:""}<div class="sp" style="flex:1"></div>${sel}</div>`
+    : `<div class="mp-now" style="background:var(--grnL);border-color:var(--grn)"><b style="color:var(--grn)">✓ Proceso completado</b><div class="sp" style="flex:1"></div>${sel}</div>`;
+  const body=`<div class="mp-sum"><span class="muted">${esc(m.subtitulo||"")}</span><div class="sp" style="flex:1"></div><span><b>${C.hechos}</b> / ${C.total} pasos hechos</span><div class="bar"><div style="width:${C.total?C.hechos/C.total*100:0}%"></div></div><span class="muted">${esc(mpRango(C.items))}</span></div>
+    ${now}${mapaSVG(m,mi)}
+    <div class="mp-leg"><span><i style="background:${MP_COL.org};border-color:${MP_COL.org}"></i> Estamos aquí</span><span><i style="background:#E8F5EC;border-color:${MP_COL.grn}"></i> Hecho</span><span><i style="background:#fff;border-color:${MP_COL.teal}"></i> Pendiente (color del actor)</span><span><i style="background:#fff;border-color:${MP_COL.gry};border-style:dashed"></i> Sin fecha · clic para agregarla</span><span>≈ fecha estimada desde el paso anterior</span><span>Clic en un paso para editar fecha, estado o nota</span></div>
+    ${m.fuente?`<p class="small muted" style="margin:8px 0 0">${esc(m.fuente)}</p>`:""}`;
+  return card(esc(m.titulo), I.layers, body, "", `<button class="btn ghost sm" onclick="editMapa(${mi})" title="Editar título, actores y etapas">${I.edit} Mapa</button><button class="btn sec sm" onclick="addHito(${mi})">${I.plus} Paso</button>`);
+}
+function mpWebW(){ const v=document.getElementById("view"); return Math.max(640,(v?v.clientWidth:1100)-52-36); }
+VIEWS.programa = () => {
+  const p=P(); const ms=p.mapas||[];
+  return `<div class="tbar" style="margin-bottom:12px"><div class="muted">El paso actual (★) se calcula con las fechas · hoy ${fd(iso(hoy()))}. Si un paso no tiene fecha, haz clic en él para agregarla; los siguientes se estiman en cadena (≈). Los mapas se incluyen en la PPT de avance.</div><div class="sp"></div><button class="btn" onclick="addMapa()">${I.plus} Mapa de proceso</button></div>
+    ${ms.length?ms.map((m,i)=>`<div style="margin-bottom:14px">${mapaCard(m,i)}</div>`).join(""):`<div class="card"><div class="empty">Aún no hay mapas de proceso. Crea uno con «Mapa de proceso» y ve agregando pasos.</div></div>`}`;
+};
+TITLES.programa="Programa · mapas de proceso"; TABS.forEach(t=>{ if(t[0]==="programa") t[1]="Mapas de proceso"; });
+window.addEventListener("resize",()=>{ if(TAB==="programa"){ clearTimeout(window._mpR); window._mpR=setTimeout(render,200); } });
+
+/* ---- mover «estamos aquí» a mano: anteriores = Hecho, elegido = En curso, siguientes = Pendiente (o volver a Auto) ---- */
+function mpSetCur(mi,v){ const m=P().mapas[mi]; if(v===""||v===undefined) return;
+  if(v==="auto") m.hitos.forEach(h=>{ h.estado="Auto"; });
+  else { const idx=v==="fin"?m.hitos.length:+v; m.hitos.forEach((h,k)=>{ h.estado=k<idx?"Hecho":k===idx?"En curso":"Pendiente"; }); }
+  save(); render(); toast(v==="auto"?"Paso actual calculado por fechas":v==="fin"?"Proceso marcado como completado":"Paso actual actualizado"); }
+
+/* ---- formularios ---- */
+function mpHitoFields(m, add){
+  const acts=(m.actores||[]).map(a=>a.k), ets=(m.etapas||[]).slice();
+  const f=[{k:"cod",l:"Código (H1, H2…)"},{k:"nombre",l:"Paso / hito",full:true},
+    {k:"actor",l:"Actor / carril",t:"select",o:acts.length?acts:["DAND"]},{k:"etapa",l:"Etapa",t:"select",o:ets.length?ets:["Etapa 1"]},
+    {k:"inicio",l:"Fecha inicio (o fecha del hito)",t:"date"},{k:"termino",l:"Fecha término (si tiene duración)",t:"date"},
+    {k:"dias",l:"Duración (días)",t:"number"},{k:"dur",l:"Días después del paso anterior (si aún no hay fecha)",t:"number"},
+    {k:"desde",l:"Viene de (códigos separados por coma; vacío = paso anterior)"},{k:"estado",l:"Estado",t:"select",o:["Auto","Hecho","En curso","Pendiente"]},
+    {k:"nota",l:"Nota (condición, observación)",t:"area"}];
+  if(add) f.splice(2,0,{k:"pos",l:"Insertar después de",t:"select",o:["Al final"].concat((m.hitos||[]).map(h=>h.cod+" · "+h.nombre))});
+  return f;
+}
+function editHito(mi,i){ const m=P().mapas[mi]; const h=m.hitos[i]; const C=mapaCalc(m); const o=C.items[i];
+  openForm(`Editar paso · ${h.cod}${o&&o.est?"  (fecha estimada ≈ "+fds(iso(o.ini))+")":""}`, mpHitoFields(m,false), h, v=>Object.assign(h,v), ()=>{ const k=m.hitos.indexOf(h); if(k>=0) m.hitos.splice(k,1); }); }
+function addHito(mi){ const m=P().mapas[mi]; const C=mapaCalc(m); const cur=C.cur>=0?C.items[C.cur].h:(m.hitos[m.hitos.length-1]||{});
+  const n=m.hitos.length; const def={cod:"H"+(n+1), etapa:cur.etapa||(m.etapas||[])[0]||"", actor:cur.actor||((m.actores||[])[0]||{}).k||"", estado:"Auto", pos:"Al final"};
+  openForm("Nuevo paso · "+m.titulo, mpHitoFields(m,true), def, v=>{ const pos=v.pos; delete v.pos; v.id=mpNext(m.hitos); if(!v.cod) v.cod="H"+(m.hitos.length+1);
+    const k=pos==="Al final"?-1:m.hitos.findIndex(h=>h.cod+" · "+h.nombre===pos); if(k<0) m.hitos.push(v); else m.hitos.splice(k+1,0,v); }); }
+function mpMapaFields(){ return [{k:"titulo",l:"Título del mapa",full:true},{k:"subtitulo",l:"Subtítulo / descripción",full:true},{k:"fechaInicio",l:"Fecha de inicio del proceso (para estimar los pasos sin fecha)",t:"date"},
+  {k:"actores",l:"Actores / carriles · uno por línea: CLAVE | Nombre | color ("+MP_COLN.join(", ")+")",t:"area"},{k:"etapas",l:"Etapas · una por línea, en orden",t:"area"},{k:"fuente",l:"Fuente / notas al pie",t:"area"}]; }
+function mpMapaToForm(m){ return {titulo:m.titulo||"", subtitulo:m.subtitulo||"", fechaInicio:m.fechaInicio||"", fuente:m.fuente||"",
+  actores:(m.actores||[]).map(a=>`${a.k} | ${a.nombre||""} | ${a.color||"teal"}`).join("\n"), etapas:(m.etapas||[]).join("\n")}; }
+function mpFormToMapa(v,m){ m.titulo=v.titulo||m.titulo||"Mapa de proceso"; m.subtitulo=v.subtitulo||""; m.fechaInicio=v.fechaInicio||""; m.fuente=v.fuente||"";
+  const acts=String(v.actores||"").split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(a=>a[0]).map((a,i)=>({k:a[0], nombre:a[1]||"", color:MP_COL[a[2]]?a[2]:MP_COLN[i%6]}));
+  if(acts.length) m.actores=acts; if(!m.actores||!m.actores.length) m.actores=[{k:"DAND",nombre:"Codelco · GPRO",color:"teal"}];
+  const ets=String(v.etapas||"").split("\n").map(x=>x.trim()).filter(Boolean); if(ets.length) m.etapas=ets; if(!m.etapas||!m.etapas.length) m.etapas=["Etapa 1"];
+  m.hitos=m.hitos||[]; m.hitos.forEach(h=>{ if(!m.etapas.includes(h.etapa)) h.etapa=m.etapas[0]; if(!m.actores.some(a=>a.k===h.actor)) h.actor=m.actores[0].k; }); }
+function editMapa(mi){ const m=P().mapas[mi]; openForm("Editar mapa de proceso", mpMapaFields(), mpMapaToForm(m), v=>mpFormToMapa(v,m), ()=>{ if(confirm(`Se eliminará el mapa "${m.titulo}" con sus ${(m.hitos||[]).length} pasos.`)) P().mapas.splice(mi,1); }); }
+function addMapa(){ openForm("Nuevo mapa de proceso", mpMapaFields(), {actores:"DAND | Codelco · GPRO | teal\nContratista | Empresa | org", etapas:"Etapa 1"}, v=>{ const m={id:mpNext(P().mapas), hitos:[]}; mpFormToMapa(v,m); P().mapas.push(m); }); }
+
+/* ---- al renderizar: asegurar la colección (también tras traer datos del servidor) ---- */
+const _render_mp_base = render;
+render = function(){ if(ensureMapas()) save(); _render_mp_base(); };
+
+/* ===================== LÁMINA PPT: un mapa por lámina, mismo layout escalado ===================== */
+const MP_KP={wrap:false, lab:1.15, col:1.12, gap:0.09, boxH:0.5, rowGap:0.07, laneTop:0.09, laneBot:0.06, phH:0.27, phGap:0.09, pad:0, maxW:12.25, maxH:5.75};
+function pptMapas(pptx, p, H){
+  const T={teal:"158A9B",gry:"7F7F7F",org:"E87524",white:"FFFFFF",hdr:"3C3C3B",hdr2:"5A5A59",ink:"222222",line:"BFBFBF"}; const FN="Calibri"; const X0=0.55, Y0=1.3;
+  const hx=c=>String(c).replace("#","");
+  (p.mapas||[]).forEach(m=>{
+    const C=mapaCalc(m); let K={...MP_KP}; let L=mapaLayout(m,C,K);
+    if(L.H>K.maxH){ const f=K.maxH/L.H; ["boxH","rowGap","laneTop","laneBot","phH","phGap"].forEach(k=>K[k]=K[k]*f); L=mapaLayout(m,C,K); }
+    const fsz=Math.max(0.6,Math.min(1,K.boxH/0.5));
+    const s=pptx.addSlide(); const cur=C.cur>=0?C.items[C.cur]:null;
+    s.addText(`MAPA DE PROCESO · ${String(m.titulo||"").toUpperCase()}`,{x:X0,y:0.35,w:9.9,h:0.55,fontFace:FN,fontSize:22,bold:true,color:T.teal,fit:"shrink"});
+    s.addText(`Dónde estamos al ${fd(iso(H))} · ${C.hechos} de ${C.total} pasos hechos · ${cur?`paso actual: ${cur.h.cod} · ${cur.h.nombre}`:"proceso completado"}`,{x:X0+0.02,y:0.88,w:9.9,h:0.35,fontFace:FN,fontSize:13,bold:true,color:T.gry,fit:"shrink"});
+    s.addShape(pptx.ShapeType.roundRect,{x:10.45,y:0.45,w:2.35,h:0.4,rectRadius:0.2,fill:{color:T.org},line:{color:T.org}});
+    s.addText("PROCESO",{x:10.45,y:0.45,w:2.35,h:0.4,fontFace:FN,fontSize:10.5,bold:true,color:T.white,align:"center",valign:"middle"});
+    L.phases.forEach(ph=>{
+      const y=Y0+ph.y;
+      s.addShape(pptx.ShapeType.roundRect,{x:X0,y,w:L.W,h:K.phH,rectRadius:0.04,fill:{color:ph.idx%2?T.hdr2:T.hdr},line:{color:ph.idx%2?T.hdr2:T.hdr}});
+      s.addText(mpPhaseLabel(ph),{x:X0+0.08,y,w:L.W-2.6,h:K.phH,fontFace:FN,fontSize:8.5*fsz+1,bold:true,color:T.white,valign:"middle",margin:0});
+      const curIn=(ph.boxes.find(b=>b.o.cur)||{}).o; if(curIn) s.addText(`★ ESTAMOS AQUÍ · ${curIn.h.cod}`,{x:X0+L.W-2.5,y,w:2.42,h:K.phH,fontFace:FN,fontSize:8.5*fsz+1,bold:true,color:"FFD28F",align:"right",valign:"middle",margin:0});
+      ph.lanes.forEach((ln,k)=>{ const a=mpActor(m,ln.actor), c=hx(mpHex(a.color)); const ly=Y0+ln.y;
+        s.addShape(pptx.ShapeType.rect,{x:X0,y:ly,w:L.W,h:ln.h,fill:{color:k%2?"F7F8F9":T.white},line:{color:"E3E7EA",width:0.5}});
+        s.addShape(pptx.ShapeType.rect,{x:X0,y:ly+0.05,w:0.05,h:ln.h-0.1,fill:{color:c},line:{color:c}});
+        s.addText([{text:ln.actor,options:{bold:true,color:c,fontSize:8.5*fsz+1,breakLine:true}},{text:a.nombre||"",options:{color:T.gry,fontSize:7.5*fsz+1}}],{x:X0+0.1,y:ly,w:K.lab-0.12,h:ln.h,fontFace:FN,valign:"middle",margin:0.02,fit:"shrink"}); });
+      ph.edges.forEach(({a,b})=>{ const x1=X0+a.x+a.w, y1=Y0+a.y+a.h/2, x2=X0+b.x, y2=Y0+b.y+b.h/2; const ln={color:"9AA5AC",width:1};
+        if(Math.abs(y1-y2)<0.01) s.addShape(pptx.ShapeType.line,{x:x1,y:y1,w:x2-x1,h:0,line:{...ln,endArrowType:"triangle"}});
+        else { const xm=x1+K.gap/2; s.addShape(pptx.ShapeType.line,{x:x1,y:y1,w:xm-x1,h:0,line:ln}); s.addShape(pptx.ShapeType.line,{x:xm,y:Math.min(y1,y2),w:0,h:Math.abs(y2-y1),line:ln}); s.addShape(pptx.ShapeType.line,{x:xm,y:y2,w:x2-xm,h:0,line:{...ln,endArrowType:"triangle"}}); } });
+      ph.boxes.forEach(b=>{ const o=b.o, st=mpStyle(o,m); const f=mpFecha(o); const bx=X0+b.x, by=Y0+b.y;
+        s.addShape(pptx.ShapeType.roundRect,{x:bx,y:by,w:b.w,h:b.h,rectRadius:0.06,fill:{color:hx(st.fill)},line:{color:hx(st.stroke),width:o.cur?2:1,dashType:st.dash?"dash":"solid"}});
+        const runs=[{text:st.pre+o.h.cod+(f?" · "+f:""),options:{bold:true,color:hx(st.code),fontSize:7.5*fsz+1,italic:!!o.est,breakLine:true}}];
+        if(!f&&o.st!=="Hecho") runs[0].text+=" · sin fecha";
+        runs.push({text:o.h.nombre||"",options:{color:hx(st.txt),fontSize:7*fsz+1}});
+        if(+o.h.dias>0||o.h.nota) runs.push({text:"\n"+[(+o.h.dias>0?o.h.dias+" d":""),(o.h.nota||"")].filter(Boolean).join(" · "),options:{color:o.cur?"FFFFFF":"8C8C8C",fontSize:6*fsz+1,italic:true}});
+        s.addText(runs,{x:bx,y:by,w:b.w,h:b.h,fontFace:FN,valign:"top",margin:0.04,fit:"shrink"}); });
+    });
+    if(m.fuente) s.addText("Fuente: "+m.fuente,{x:X0,y:7.08,w:12.25,h:0.3,fontFace:FN,fontSize:7.5,italic:true,color:T.gry,fit:"shrink",margin:0});
+  });
+}
+/* checkbox en el diálogo de exportación + inclusión en la generación */
+const _exportPPT_mp_base = exportPPT;
+exportPPT = async function(){ await _exportPPT_mp_base();
+  const ref=document.getElementById("ppt_pend"); if(!ref) return; const lab=ref.closest("label"); const n=(P().mapas||[]).length;
+  lab.insertAdjacentHTML("afterend",`<label style="display:flex;gap:8px;align-items:center;padding:5px 0;cursor:pointer"><input type="checkbox" id="ppt_mapas" ${n?"checked":""} ${n?"":"disabled"} style="width:16px;height:16px"> Mapas de proceso · dónde estamos hoy (${n} lámina${n===1?"":"s"})</label>`); };
+const _pptBuild_mp_base = pptBuildSlides;
+pptBuildSlides = function(pptx,p,desde,H,opt){ _pptBuild_mp_base(pptx,p,desde,H,opt); const e=document.getElementById("ppt_mapas"); if(e&&e.checked&&(p.mapas||[]).length) pptMapas(pptx,p,H); };
+render();
+</script>
 </body></html>
